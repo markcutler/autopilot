@@ -6,40 +6,38 @@ executors:
       - image: ubuntu:20.04
 
 jobs:
-  build:
+  buildjob:
     executor: focal
     steps:
-    – checkout
-    - run:
-      name: Install ansible
-      command: apt install -y --no-install-recomments ansible
-    - run:
-      name: Install dependencies
-      command: ansible-playbook build/docker/playbook.yaml
-    - run:
-      name: Create build directory
-      command: |
-        mkdir build_dir
-    – run:
-      name: Build
-      command: |
-        cd build_dir
-        cmake ../
-        make
-    – persist_to_workspace: #(6)
-      root: .
-      paths: build
-
-#  test:
-#    executor: exectr #(1)
-#    steps:
-#      – attach_workspace: #(7)
-#        at: .
+      - run:
+          name: Install ansible
+          command: apt install -y --no-install-recomments ansible
+#      - run:
+#          name: Install dependencies
+#          command: ansible-playbook build/docker/playbook.yaml
+#      - run:
+#          name: Create build directory
+#          command: |
+#            mkdir build_dir
 #      – run:
-#        name: Create test directory
-#        command: |
-#          cd build
-#          mkdir -p Test
+#          name: Build
+#          command: |
+#            cd build_dir
+#            cmake ../
+#            make
+#      – persist_to_workspace: #(6)
+#          root: .
+#          paths: build
+
+  testjob:
+    executor: focal
+    steps:
+#      – attach_workspace:
+#         at: .
+      – run:
+          name: Create test directory
+          command: |
+            mkdir -p Test
 #      – run:
 #        name: Execute Tests
 #        command: |
@@ -54,6 +52,8 @@ jobs:
 
 workflows:
   version: 2
-  build-and-test:
+
+  buildandtest:
     jobs:
-      – build
+      – buildjob
+      - testjob
