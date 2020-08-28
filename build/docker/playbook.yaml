@@ -1,0 +1,18 @@
+- hosts: localhost
+  become_user: root
+
+  tasks:
+    - name: Install required packages
+      apt:
+        pkg:
+          - build-essential
+          - clang
+          - clang-format
+          - clang-tidy
+          - cmake
+          - gcc
+          - git
+          - g++
+          - libgtest-dev
+        update_cache: true
+        state: present
