@@ -12,7 +12,9 @@ jobs:
       - checkout
       - run:
           name: Install ansible
-          command: apt install -y --no-install-recommends ansible
+          command: |
+            apt update
+            apt install -y --no-install-recommends ansible
       - run:
           name: Install dependencies
           command: ansible-playbook build/docker/playbook.yaml
@@ -28,7 +30,7 @@ jobs:
             make
       - persist_to_workspace:
           root: .
-          paths: build
+          paths: build_dir
 
   test:
     executor: focal
@@ -36,20 +38,12 @@ jobs:
       - attach_workspace:
          at: .
       - run:
-          name: Create test directory
+          name: Run unit tests
           command: |
-            mkdir -p Test
-      - run:
-          name: Execute Tests
-          command: |
-            cd build
-            ctest –no-compress-output -T Test || true #(8)
-      - run:
-          name: Transform test results into JUnit conform notation
-          command: |
-            python3 build/buildutils/ctest2JUnit.py build build/buildutils/CTest2JUnit.xsl > build/Test/results.xml #(9)
+            cd build_dir
+            ./test --gtest_output=xml:test_output.xml
       - store_test_results: #(10)
-          path: build/Test
+          path: build_dir
 
 workflows:
   version: 2
