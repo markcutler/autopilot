@@ -6,7 +6,7 @@ executors:
   focal:
     docker:
       - image: ubuntu:20.04
-        working_directory: *working_dir
+    working_directory: *working_dir
 
 jobs:
   build:
