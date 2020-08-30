@@ -6,54 +6,55 @@ executors:
       - image: ubuntu:20.04
 
 jobs:
-  buildjob:
+  build:
     executor: focal
     steps:
+      - checkout
       - run:
           name: Install ansible
           command: apt install -y --no-install-recomments ansible
-#      - run:
-#          name: Install dependencies
-#          command: ansible-playbook build/docker/playbook.yaml
-#      - run:
-#          name: Create build directory
-#          command: |
-#            mkdir build_dir
-#      – run:
-#          name: Build
-#          command: |
-#            cd build_dir
-#            cmake ../
-#            make
-#      – persist_to_workspace: #(6)
-#          root: .
-#          paths: build
+      - run:
+          name: Install dependencies
+          command: ansible-playbook build/docker/playbook.yaml
+      - run:
+          name: Create build directory
+          command: |
+            mkdir build_dir
+      - run:
+          name: Build
+          command: |
+            cd build_dir
+            cmake ../
+            make
+      - persist_to_workspace:
+          root: .
+          paths: build
 
-  testjob:
+  test:
     executor: focal
     steps:
-#      – attach_workspace:
-#         at: .
-      – run:
+      - attach_workspace:
+         at: .
+      - run:
           name: Create test directory
           command: |
             mkdir -p Test
-#      – run:
-#        name: Execute Tests
-#        command: |
-#          cd build
-#          ctest –no-compress-output -T Test || true #(8)
-#      – run:
-#        name: Transform test results into JUnit conform notation
-#        command: |
-#          python3 build/buildutils/ctest2JUnit.py build build/buildutils/CTest2JUnit.xsl > build/Test/results.xml #(9)
-#      – store_test_results: #(10)
-#        path: build/Test
+      - run:
+          name: Execute Tests
+          command: |
+            cd build
+            ctest –no-compress-output -T Test || true #(8)
+      - run:
+          name: Transform test results into JUnit conform notation
+          command: |
+            python3 build/buildutils/ctest2JUnit.py build build/buildutils/CTest2JUnit.xsl > build/Test/results.xml #(9)
+      - store_test_results: #(10)
+          path: build/Test
 
 workflows:
   version: 2
 
-  buildandtest:
+  build-and-test:
     jobs:
-      – buildjob
-      - testjob
+      - build
+      - test
