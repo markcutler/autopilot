@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Install ansible
-          command: apt install -y --no-install-recomments ansible
+          command: apt install -y --no-install-recommends ansible
       - run:
           name: Install dependencies
           command: ansible-playbook build/docker/playbook.yaml
@@ -58,3 +58,5 @@ workflows:
     jobs:
       - build
       - test
+          requires:
+            - build
