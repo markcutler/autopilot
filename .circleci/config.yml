@@ -1,9 +1,12 @@
 version: 2.1
 
+working_dir: &working_dir /root/autopilot
+
 executors:
   focal:
     docker:
       - image: ubuntu:20.04
+        working_director: *working_dir
 
 jobs:
   build:
@@ -29,20 +32,20 @@ jobs:
             cmake ../
             make
       - persist_to_workspace:
-          root: .
+          root: /root/autopilot
           paths: build_dir
 
   test:
     executor: focal
     steps:
       - attach_workspace:
-         at: .
+         at: /root/autopilot/build_dir
       - run:
           name: Run unit tests
           command: |
             cd build_dir
             ./test --gtest_output=xml:test_output.xml
-      - store_test_results: #(10)
+      - store_test_results:
           path: build_dir
 
 workflows:
