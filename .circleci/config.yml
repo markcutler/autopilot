@@ -47,6 +47,10 @@ jobs:
           name: Run unit tests
           command: |
             cd build_dir
+            pwd
+            ls -alh
+            cd build_dir
+            pwd
             ls -alh
             ./test --gtest_output=xml:test_output.xml
       - store_test_results:
