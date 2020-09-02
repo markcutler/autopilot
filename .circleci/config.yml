@@ -22,12 +22,9 @@ jobs:
           name: Install dependencies
           command: ansible-playbook build/docker/playbook.yaml
       - run:
-          name: Create build directory
-          command: |
-            mkdir build_dir
-      - run:
           name: Build
           command: |
+            mkdir build_dir
             cd build_dir
             cmake ../
             make
@@ -38,6 +35,11 @@ jobs:
   test:
     executor: focal
     steps:
+      - run:
+          name: Install ca-certificates # this step is only needed because we are using a vanilla ubuntu image. see https://support.circleci.com/hc/en-us/articles/360016505753-Resolve-Certificate-Signed-By-Unknown-Authority-error-in-Alpine-images?flash_digest=39b76521a337cecacac0cc10cb28f3747bb5fc6a
+          command: |
+            apt update
+            apt install -y --no-install-recommends ca-certificates
       - attach_workspace:
          at: /root/autopilot/build_dir
       - run:
