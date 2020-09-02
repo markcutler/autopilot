@@ -28,6 +28,7 @@ jobs:
             cd build_dir
             cmake ../
             make
+            ./test --gtest_output=xml:test_output.xml
       - persist_to_workspace:
           root: /root/autopilot
           paths: build_dir
@@ -46,6 +47,7 @@ jobs:
           name: Run unit tests
           command: |
             cd build_dir
+            ls -alh
             ./test --gtest_output=xml:test_output.xml
       - store_test_results:
           path: build_dir
