@@ -28,7 +28,6 @@ jobs:
             cd build_dir
             cmake ../
             make
-            ./test --gtest_output=xml:test_output.xml
       - persist_to_workspace:
           root: /root/autopilot
           paths: build_dir
@@ -42,16 +41,10 @@ jobs:
             apt update
             apt install -y --no-install-recommends ca-certificates
       - attach_workspace:
-         at: /root/autopilot/build_dir
+         at: /root/autopilot
       - run:
           name: Run unit tests
           command: |
-            cd build_dir
-            pwd
-            ls -alh
-            cd build_dir
-            pwd
-            ls -alh
             ./test --gtest_output=xml:test_output.xml
       - store_test_results:
           path: build_dir
