@@ -36,7 +36,9 @@ jobs:
     executor: focal
     steps:
       - run:
-          name: Install ca-certificates # this step is only needed because we are using a vanilla ubuntu image. see https://support.circleci.com/hc/en-us/articles/360016505753-Resolve-Certificate-Signed-By-Unknown-Authority-error-in-Alpine-images?flash_digest=39b76521a337cecacac0cc10cb28f3747bb5fc6a
+          # this step is only needed because we are using a vanilla ubuntu image.
+          # See https://support.circleci.com/hc/en-us/articles/360016505753-Resolve-Certificate-Signed-By-Unknown-Authority-error-in-Alpine-images?flash_digest=39b76521a337cecacac0cc10cb28f3747bb5fc6a
+          name: Install ca-certificates
           command: |
             apt update
             apt install -y --no-install-recommends ca-certificates
