@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 
-TEST(Example, Test1) {
-    EXPECT_EQ(2, 5-3);
+#include "autopilot/hello_world.hpp"
+
+TEST(Example, HelloWorld) {
+    EXPECT_EQ("Hello World!", GetPrintStatement());
 }
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
