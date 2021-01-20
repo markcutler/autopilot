@@ -3,6 +3,7 @@
 
   tasks:
     - name: Install required packages
+      become: yes
       apt:
         pkg:
           - build-essential
@@ -17,3 +18,9 @@
           - libgtest-dev
         update_cache: true
         state: present
+
+    - name: Install pip packages
+      become: yes
+      pip:
+        name:
+          - gitpython

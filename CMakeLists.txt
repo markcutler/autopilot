@@ -7,8 +7,8 @@ find_package(GTest REQUIRED)
 
 include_directories(include)
 
-add_executable(hello_world
-        src/hello_world.cpp)
+#add_executable(hello_world
+#        src/hello_world.cpp)
 
 add_executable(test
         src/hello_world.cpp
