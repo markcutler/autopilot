@@ -1,6 +1,7 @@
 import click
 import os
 import glob
+import tempfile
 
 import git
 
@@ -42,19 +43,16 @@ def main(fix_in_place, modified_files, verbose):
     for file in sources_to_check:
         print("checking: " + file)
 
+        output = shell_utils.run_output_list("clang-format -style=file -fallback-style=none " + file)
+        fp = tempfile.TemporaryFile()
+        fp.write(output)
 
-        # shell_utils.run_shell_command("clang-format -style=file -fallback-style=none " + file)
+        fp.seek(0)
+        print(fp.read())
 
+        fp.close()
 
-        import subprocess as sp
-        command = "clang-format -style=file -fallback-style=none " + file
-        command_split = "{}".format(command).split()
-        popen = sp.Popen(command_split, stdout=sp.PIPE, stderr=sp.PIPE)
-        stdout, stderr = popen.communicate()
-
-        print(stdout.decode('utf-8'))
-
-
+        # print(output.decode('utf-8'))
 
         print("done checking")
 
