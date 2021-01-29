@@ -1,7 +1,12 @@
+#!/usr/bin/python3
+
 import click
 import os
-import glob
 import tempfile
+import filecmp
+import shutil
+import difflib
+import sys
 
 import git
 
@@ -10,13 +15,24 @@ import shell_utils
 SOURCE_EXTENSIONS = [".cpp", ".c", ".cxx", ".cc", ".h", ".hxx", ".hpp"]
 
 
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    END = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
-# output = shell_utils.run_shell_command("ls -l")
-# print(output)
+
+class Symbols:
+    PASS = u'\u2714'
+    FAIL = u'\u2718'
 
 
 def get_source_files_in_dir(directory):
-
     source_files = [os.path.join(d, f)
                     for d, dirs, files in os.walk(directory)
                     for f in files if f.lower().endswith(tuple(SOURCE_EXTENSIONS))]
@@ -24,44 +40,52 @@ def get_source_files_in_dir(directory):
 
 
 @click.command()
-@click.option('-f', '--fix-in-place', default=False, help='Fix the issues found.')
-@click.option('-m', '--modified-files', default=False, help='Check modified files (according to git) only.')
-@click.option('-v', '--verbose', default=False, help="Print all the errors found.")
+@click.option('-f', '--fix-in-place', default=False, is_flag=True, help='Fix the issues found.')
+@click.option('-m', '--modified-files', default=False, is_flag=True, help='Check modified files (according to git) '
+                                                                          'only.')
+@click.option('-v', '--verbose', default=False, is_flag=True, help="Print all the errors found.")
 def main(fix_in_place, modified_files, verbose):
     # change directory to the root of the git project
     repo = git.Repo('.', search_parent_directories=True)
     os.chdir(repo.working_tree_dir)
 
     if modified_files:
+        # TODO: fill in
         pass
     else:
         sources_to_check = get_source_files_in_dir(repo.working_tree_dir)
 
-    print(sources_to_check)
-
-
     for file in sources_to_check:
-        print("checking: " + file)
-
+        # format the file with clang-format and save the output to a temporary file
         output = shell_utils.run_output_list("clang-format -style=file -fallback-style=none " + file)
-        fp = tempfile.TemporaryFile()
-        fp.write(output)
+        formatted_file = tempfile.NamedTemporaryFile()
+        formatted_file.write(output)
+        formatted_file.seek(0)
 
-        fp.seek(0)
-        print(fp.read())
+        # check if the formatted file is different from the original
+        file_changed = not filecmp.cmp(formatted_file.name, file)
 
-        fp.close()
+        # Only need to handle those files that were changed by clang-format. Files that weren't changed are good to go.
+        if file_changed:
+            print(Colors.RED + Symbols.FAIL + Colors.END + " " + str(file))
+            if verbose:
+                # get and display the diff between the original and formatted files
+                original_file = open(file, 'r')
+                new_file = open(formatted_file.name, 'r')
+                diff = difflib.unified_diff(original_file.readlines(), new_file.readlines())
+                print(Colors.CYAN)
+                for line in diff:
+                    sys.stdout.write(line)
+                print(Colors.END)
+            if fix_in_place:
+                # if we are fixing in place, just replace the original file with the changed contents
+                print(Colors.YELLOW + "WARNING: Fixing in place. Original file will be changed." + Colors.END)
+                shutil.move(formatted_file.name, file)
+        else:
+            print(Colors.GREEN + Symbols.PASS + Colors.END + " " + str(file))
 
-        # print(output.decode('utf-8'))
-
-        print("done checking")
-
-
-        # save the output as a new file
-        # compare the new file to the original
-        # if they are the same, good. no errors.
-        # if they are different, save the difference for printing
-        # if we are fixing in place, replace the old file with the new file
+        # clean up
+        formatted_file.close()
 
 
 if __name__ == '__main__':
