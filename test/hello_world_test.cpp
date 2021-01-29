@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-
 #include "autopilot/hello_world.hpp"
+
+#include <gtest/gtest.h>
 
 TEST(Example, HelloWorld) { EXPECT_EQ("Hello World!", GetPrintStatement()); }
 
