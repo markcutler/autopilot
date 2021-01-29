@@ -16,6 +16,7 @@
           - git
           - g++
           - libgtest-dev
+          - pip3
         update_cache: true
         state: present
 
