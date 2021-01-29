@@ -55,6 +55,8 @@ def main(fix_in_place, modified_files, verbose):
     else:
         sources_to_check = get_source_files_in_dir(repo.working_tree_dir)
 
+    num_failed_files = 0
+
     for file in sources_to_check:
         # format the file with clang-format and save the output to a temporary file
         output = shell_utils.run_output_list("clang-format -style=file -fallback-style=none " + file)
@@ -67,6 +69,7 @@ def main(fix_in_place, modified_files, verbose):
 
         # Only need to handle those files that were changed by clang-format. Files that weren't changed are good to go.
         if file_changed:
+            num_failed_files += 1
             print(Colors.RED + Symbols.FAIL + Colors.END + " " + str(file))
             if verbose:
                 # get and display the diff between the original and formatted files
@@ -90,6 +93,15 @@ def main(fix_in_place, modified_files, verbose):
         except FileNotFoundError as _:
             # Do nothing. We must have moved the file above
             pass
+
+    if num_failed_files:
+        print(Colors.RED + 3*Symbols.FAIL + " " + str(num_failed_files) + " files have formatting errors." + Colors.END)
+        if fix_in_place:
+            print("The formatting errors have been automatically fixed.")
+        sys.exit(1)
+
+    print(Colors.GREEN + 3*Symbols.PASS + Colors.END + " No files have formatting errors!")
+    sys.exit(0)
 
 
 if __name__ == '__main__':
