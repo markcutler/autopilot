@@ -85,7 +85,11 @@ def main(fix_in_place, modified_files, verbose):
             print(Colors.GREEN + Symbols.PASS + Colors.END + " " + str(file))
 
         # clean up
-        formatted_file.close()
+        try:
+            formatted_file.close()
+        except FileNotFoundError as _:
+            # Do nothing. We must have moved the file above
+            pass
 
 
 if __name__ == '__main__':
