@@ -1,4 +1,7 @@
 # clion folders
 .idea/
 cmake-build-debug/
-build_dir/
+
+# python
+venv/
+__pycache__/

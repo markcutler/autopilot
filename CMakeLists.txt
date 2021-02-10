@@ -5,5 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(GTest REQUIRED)
 
-add_executable(test test/test.cpp)
+include_directories(include)
+
+#add_executable(hello_world
+#        src/hello_world.cpp)
+
+add_executable(test
+        src/hello_world.cpp
+        test/hello_world_test.cpp)
 target_link_libraries(test gtest pthread)
